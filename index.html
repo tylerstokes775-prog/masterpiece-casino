@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterpiece Stake AI Slots</title>
+    <script src="https://tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f212e;
+            background-image: 
+                linear-gradient(rgba(33, 55, 67, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(33, 55, 67, 0.15) 1px, transparent 1px);
+            background-size: 24px 24px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .casino-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 231, 1, 0.06) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .reel-container { height: 120px; overflow: hidden; }
+        .reel { transition: transform 2s cubic-bezier(0.1, 0.8, 0.1, 1); }
+    </style>
+</head>
+<body class="text-white font-sans flex flex-col items-center justify-center min-h-screen p-4 gap-4">
+    <div class="casino-glow"></div>
+
+    <div class="relative z-10 bg-[#1a2c38] p-6 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.6)] w-full max-w-md border border-[#213743]">
+        <!-- VIP Progression -->
+        <div class="mb-5 bg-[#0f212e] p-3 rounded-xl border border-[#213743]">
+            <div class="flex justify-between items-center mb-1 text-[11px] font-black uppercase tracking-wider text-slate-400">
+                <span>VIP Progression</span>
+                <span class="text-[#00e701]" id="levelDisplay">Level 1</span>
+            </div>
+            <div class="w-full bg-[#162631] h-2.5 rounded-full overflow-hidden p-[2px] border border-[#2f4553]/30">
+                <div id="xpBar" class="bg-gradient-to-r from-[#00b400] to-[#00e701] h-full rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(0,231,1,0.5)]" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-5">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#00e701] animate-pulse"></span>
+                <h1 class="text-lg font-black tracking-widest text-white">STAKE<span class="text-[#00e701]">_AI</span></h1>
+            </div>
+            <button onclick="openBonusModal()" class="text-[11px] bg-[#213743] hover:bg-[#2f4553] text-[#00e701] px-2.5 py-1 rounded-md font-bold tracking-wide transition border border-[#00e701]/20">🎁 Claim Bonus</button>
+            <div class="bg-[#0f212e] px-4 py-1.5 rounded-lg font-mono text-sm border border-[#213743] shadow-inner flex items-center gap-1.5">
+                <span class="text-[#00e701]">💰</span>
+                <span>$<span id="balance" class="font-bold text-slate-100">1000</span></span>
+            </div>
+        </div>
+
+        <!-- Risk Menu -->
+        <div class="mb-5">
+            <label class="text-[10px] uppercase font-black tracking-widest text-slate-400 block mb-2">Volatility Risk Engine</label>
+            <div class="grid grid-cols-3 gap-2 bg-[#0f212e] p-1 rounded-xl border border-[#213743]">
+                <button id="risk-low" onclick="setRisk('low')" class="py-2 text-xs font-bold rounded-lg uppercase tracking-wide transition border bg-[#1a2c38] text-[#00e701] border-[#00e701]/30">Low</button>
+                <button id="risk-med" onclick="setRisk('med')" class="py-2 text-xs font-bold rounded-lg uppercase tracking-wide transition border border-transparent text-slate-400 hover:text-slate-200">Medium</button>
+                <button id="risk-high" onclick="setRisk('high')" class="py-2 text-xs font-bold rounded-lg uppercase tracking-wide transition border border-transparent text-slate-400 hover:text-slate-200">High</button>
+            </div>
+        </div>
+
+        <!-- Reels -->
+        <div class="grid grid-cols-3 gap-3 bg-[#0f212e] p-4 rounded-xl border-2 border-[#213743] mb-5 shadow-inner">
+            <div class="reel-container bg-[#162631] rounded-lg flex items-center justify-center border border-[#2f4553]/40 shadow-md">
+                <div id="reel0" class="reel text-4xl text-center flex flex-col gap-8 py-2">🍒</div>
+            </div>
+            <div class="reel-container bg-[#162631] rounded-lg flex items-center justify-center border border-[#2f4553]/40 shadow-md">
+                <div id="reel1" class="reel text-4xl text-center flex flex-col gap-8 py-2">🍒</div>
+            </div>
+            <div class="reel-container bg-[#162631] rounded-lg flex items-center justify-center border border-[#2f4553]/40 shadow-md">
+                <div id="reel2" class="reel text-4xl text-center flex flex-col gap-8 py-2">🍒</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="space-y-4">
+            <div class="relative rounded-lg overflow-hidden border border-[#2f4553] focus-within:border-[#00e701] transition duration-150">
+                <input id="betInput" type="number" value="10" min="1" class="w-full bg-[#0f212e] p-3 text-sm font-mono focus:outline-none text-white pr-16">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 font-mono">USD</span>
+            </div>
+            <button id="spinBtn" onclick="spin()" class="w-full bg-[#00e701] hover:bg-[#00b400] text-[#0f212e] font-black py-4 rounded-xl text-md transition tracking-widest shadow-[0_4px_20px_rgba(0,231,1,0.2)]">
+                Place Bet & Spin
+            </button>
+        </div>
+
+        <!-- Auto Spin Toggle -->
+        <div class="mt-4 flex items-center justify-between p-3 bg-[#0f212e] rounded-xl border border-[#2f4553]/40">
+            <div class="flex flex-col">
+                <span class="text-xs uppercase font-black tracking-wider text-slate-300">Auto Spin Mode</span>
+                <span id="autoStatus" class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Status: Inactive</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="autoToggle" onchange="toggleAutoSpin()" class="sr-only peer">
+                <div class="w-11 h-6 bg-[#213743] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 peer-checked:after:bg-[#0f212e] after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00e701]"></div>
+            </label>
+        </div>
+
+        <div id="statusMessage" class="mt-5 text-center text-xs uppercase tracking-wider font-bold text-slate-400 min-h-[16px]">Ready to roll</div>
+    </div>
+
+    <!-- History Log -->
+    <div class="relative z-10 w-full max-w-md bg-[#1a2c38] rounded-2xl border border-[#213743] overflow-hidden shadow-2xl">
+        <div class="bg-[#162631] px-4 py-3 border-b border-[#213743] flex justify-between items-center">
+            <span class="text-xs uppercase font-black tracking-wider text-slate-400">Live Bets</span>
+        </div>
+        <table class="w-full text-left text-xs border-collapse">
+            <thead>
+                <tr class="text-slate-500 font-bold border-b border-[#213743] bg-[#11222e]">
+                    <th class="p-3">Game</th>
+                    <th class="p-3 text-right">Bet</th>
+                    <th class="p-3 text-right">Multiplier</th>
+                    <th class="p-3 text-right">Payout</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody" class="font-mono divide-y divide-[#213743]/40">
+                <tr id="emptyRow" class="text-slate-500 text-center"><td colspan="4" class="p-4 italic">No bets placed yet</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Glowing Loyalty Pop-Up Modal -->
+    <div id="bonusModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-[#1a2c38] p-6 rounded-2xl border border-[#213743] w-full max-w-sm text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative">
+            <button onclick="closeBonusModal()" class="absolute top-4 right-4 text-slate-500 hover:text-slate-300 font-bold font-mono text-sm">&times;</button>
+            <div class="w-16 h-16 bg-[#0f212e] rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border border-[#2f4553]/50 animate-bounce">🎁</div>
+            <h3 class="text-md font-black uppercase tracking-wider mb-1">Daily Reward Engine</h3>
+            <p class="text-xs text-slate-400 mb-5">Claim your free token package assignment every 24 hours.</p>
+            <button id="claimBtn" onclick="executeClaim()" class="w-full bg-[#00e701] hover:bg-[#00b400] text-[#0f212e] font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-[0_4px_15px_rgba(0,231,1,0.2)]">
+                Instantly Claim Free Cash
+            </button>
+            <p id="cooldownTimer" class="hidden text-xs font-mono font-bold text-red-400 bg-[#0f212e] py-3 rounded-xl border border-[#213743] mt-2"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>i
+
